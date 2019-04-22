@@ -27,9 +27,10 @@ mod tests {
     }
 
     #[test]
-    fn measure_divergence_counts_iterations_of_function_until_value_reaches_bound() {
-        let add_one = |n| n + 1.;
-        let iterations = measure_divergence(&add_one, 0., 3.);
+    fn measure_divergence_counts_iterations_of_closure_until_value_reaches_bound() {
+        let x = 1.;
+        let add_x = |n| n + x;
+        let iterations = measure_divergence(&add_x, 0., 3.);
         assert_eq!(3, iterations);
     }
 }
