@@ -71,10 +71,19 @@ mod tests {
 
     #[test]
     fn mandelbrot_function_does_not_diverge_for_some_constant() {
-        let c = Complex64{re: 0.0, im: 0.0};
+        let c = Complex64{re: 0.1, im: 0.1};
 
-        let iterations = measure_divergence(&*mandelbrot_function(c), 3.5, 10);
+        let iterations = measure_divergence(&*mandelbrot_function(c), 1.0, 10);
 
         assert!(iterations.is_none());
+    }
+
+    #[test]
+    fn mandelbrot_function_diverges_for_some_constant() {
+        let c = Complex64{re: 0.5, im: 0.5};
+
+        let iterations = measure_divergence(&*mandelbrot_function(c), 1.0, 10);
+
+        assert!(iterations.is_some());
     }
 }
