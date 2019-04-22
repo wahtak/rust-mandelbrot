@@ -11,7 +11,7 @@ fn measure_divergence(function: &Fn(i64) -> i64, initial_value: i64, bound: i64,
     let mut value = initial_value;
     let mut iterations = 0;
     loop {
-        if value > bound {
+        if num::abs(value) > bound {
             return Some(iterations);
         }
         if iterations == max_iterations {
@@ -20,7 +20,6 @@ fn measure_divergence(function: &Fn(i64) -> i64, initial_value: i64, bound: i64,
         value = function(value);
         iterations += 1;
     }
-
 }
 
 #[cfg(test)]
