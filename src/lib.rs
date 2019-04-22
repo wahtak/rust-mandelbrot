@@ -2,6 +2,16 @@ extern crate num;
 
 use num::complex::{Complex64};
 
+trait Bounded {
+    fn out_of_bound(&self, bound: f64) -> bool;
+}
+
+impl Bounded for Complex64 {
+    fn out_of_bound(&self, bound: f64) -> bool {
+        num::abs(self.re) > bound || num::abs(self.im) > bound
+    }
+}
+
 fn mandelbrot_function(z: Complex64, c: Complex64) -> Complex64 {
     z * z + c
 }
@@ -11,7 +21,7 @@ fn measure_divergence(function: &Fn(Complex64) -> Complex64, initial_value: Comp
     let mut value = initial_value;
     let mut iterations = 0;
     loop {
-        if num::abs(value.re) > bound || num::abs(value.im) > bound {
+        if value.out_of_bound(bound) {
             return Some(iterations);
         }
         if iterations == max_iterations {
