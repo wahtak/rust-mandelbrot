@@ -1,8 +1,8 @@
 extern crate num;
 
-use num::complex::Complex;
+use num::complex::Complex64;
 
-fn mandelbrot_function(z: Complex<f64>, c: Complex<f64>) -> Complex<f64> {
+fn mandelbrot_function(z: Complex64, c: Complex64) -> Complex64 {
     z * z + c
 }
 
@@ -28,10 +28,10 @@ mod tests {
 
     #[test]
     fn mandelbrot_function_evaluates_correctly_for_complex_numbers() {
-        let z = Complex::new(3., 2.);
-        let c = Complex::new(0.5, 1.);
+        let z = Complex64{re: 3., im: 2.};
+        let c = Complex64{re: 0.5, im: 1.};
 
-        assert_eq!(Complex::new(5.5, 13.), mandelbrot_function(z, c));
+        assert_eq!(Complex64{re: 5.5, im: 13.}, mandelbrot_function(z, c));
     }
 
     #[test]
