@@ -2,27 +2,27 @@ extern crate num;
 
 use num::complex::Complex64;
 
-trait Bounded {
+pub trait Bounded {
     fn out_of_bound(&self, bound: f64) -> bool;
 }
 
 impl Bounded for Complex64 {
     fn out_of_bound(&self, bound: f64) -> bool {
-        num::abs(self.re) > bound || num::abs(self.im) > bound
+        (self.re).abs() > bound || (self.im).abs() > bound
     }
 }
 
 impl Bounded for f64 {
     fn out_of_bound(&self, bound: f64) -> bool {
-        num::abs(*self) > bound
+        (*self).abs() > bound
     }
 }
 
-fn mandelbrot_function(c: Complex64) -> Box<Fn(Complex64) -> Complex64> {
+pub fn mandelbrot_function(c: Complex64) -> Box<Fn(Complex64) -> Complex64> {
     Box::new(move |z| z * z + c)
 }
 
-fn measure_divergence<T: Bounded + num::Zero>(function: &Fn(T) -> T, bound: f64, max_iterations: i64) -> Option<i64> {
+pub fn measure_divergence<T: Bounded + num::Zero>(function: &Fn(T) -> T, bound: f64, max_iterations: i64) -> Option<i64> {
     let mut value: T = num::zero();
     let mut iterations = 0;
     loop {
@@ -37,16 +37,9 @@ fn measure_divergence<T: Bounded + num::Zero>(function: &Fn(T) -> T, bound: f64,
     }
 }
 
-pub fn complex_grid(re_min: f64, re_max: f64, re_step: f64, im_min: f64, im_max: f64, im_step: f64) -> Box<std::iter::Iterator<Item = Complex64>> {
-    let re_range = (((re_min / re_step) as i64)..=((re_max / re_step) as i64)).map(move |i| i as f64 * re_step);
-    let im_range = (((im_min / im_step) as i64)..=((im_max / im_step) as i64)).map(move |i| i as f64 * im_step);
-    Box::new(
-        im_range
-            .map(move |im| re_range.clone().map(move |re| Complex64{re: re as f64, im: im as f64}))
-            .flatten()
-    )
+pub fn float_range(min: f64, max: f64, step: f64) -> impl std::iter::Iterator<Item = f64> {
+    (((min / step) as i64)..=((max / step) as i64)).map(move |i| i as f64 * step)
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -99,16 +92,15 @@ mod tests {
     }
 
     #[test]
-    fn complex_grid_iterates_over_coordinates_in_complex_plane() {
-        let mut iterator = complex_grid(-1.0, 1.0, 0.8, 0.0, 10.0, 9.0);
+    fn float_range_iterates_over_range() {
+        let mut iterator = float_range(-1.0, 1.0, 0.4);
 
-        let is_near = |a: Complex64, b: Complex64| (a - b).norm() < std::f64::EPSILON;
-        assert!(is_near(iterator.next().unwrap(), Complex64{re: -0.8, im: 0.0}));
-        assert!(is_near(iterator.next().unwrap(), Complex64{re: 0.0, im: 0.0}));
-        assert!(is_near(iterator.next().unwrap(), Complex64{re: 0.8, im: 0.0}));
-        assert!(is_near(iterator.next().unwrap(), Complex64{re: -0.8, im: 9.0}));
-        assert!(is_near(iterator.next().unwrap(), Complex64{re: 0.0, im: 9.0}));
-        assert!(is_near(iterator.next().unwrap(), Complex64{re: 0.8, im: 9.0}));
+        let is_near = |a: f64, b: f64| (a - b).abs() < std::f64::EPSILON;
+        assert!(is_near(iterator.next().unwrap(), -0.8));
+        assert!(is_near(iterator.next().unwrap(), -0.4));
+        assert!(is_near(iterator.next().unwrap(), 0.0));
+        assert!(is_near(iterator.next().unwrap(), 0.4));
+        assert!(is_near(iterator.next().unwrap(), 0.8));
         assert!(iterator.next().is_none());
     }
 }
