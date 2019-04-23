@@ -1,6 +1,6 @@
 extern crate num;
 
-use num::complex::{Complex64};
+use num::complex::Complex64;
 
 trait Bounded {
     fn out_of_bound(&self, bound: f64) -> bool;
@@ -36,6 +36,17 @@ fn measure_divergence<T: Bounded + num::Zero>(function: &Fn(T) -> T, bound: f64,
         iterations += 1;
     }
 }
+
+pub fn complex_grid(re_min: f64, re_max: f64, re_step: f64, im_min: f64, im_max: f64, im_step: f64) -> Box<std::iter::Iterator<Item = Complex64>> {
+    let re_range = (((re_min / re_step) as i64)..=((re_max / re_step) as i64)).map(move |i| i as f64 * re_step);
+    let im_range = (((im_min / im_step) as i64)..=((im_max / im_step) as i64)).map(move |i| i as f64 * im_step);
+    Box::new(
+        im_range
+            .map(move |im| re_range.clone().map(move |re| Complex64{re: re as f64, im: im as f64}))
+            .flatten()
+    )
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -85,5 +96,19 @@ mod tests {
         let iterations = measure_divergence(&*mandelbrot_function(c), 1.0, 10);
 
         assert!(iterations.is_some());
+    }
+
+    #[test]
+    fn complex_grid_iterates_over_coordinates_in_complex_plane() {
+        let mut iterator = complex_grid(-1.0, 1.0, 0.8, 0.0, 10.0, 9.0);
+
+        let is_near = |a: Complex64, b: Complex64| (a - b).norm() < std::f64::EPSILON;
+        assert!(is_near(iterator.next().unwrap(), Complex64{re: -0.8, im: 0.0}));
+        assert!(is_near(iterator.next().unwrap(), Complex64{re: 0.0, im: 0.0}));
+        assert!(is_near(iterator.next().unwrap(), Complex64{re: 0.8, im: 0.0}));
+        assert!(is_near(iterator.next().unwrap(), Complex64{re: -0.8, im: 9.0}));
+        assert!(is_near(iterator.next().unwrap(), Complex64{re: 0.0, im: 9.0}));
+        assert!(is_near(iterator.next().unwrap(), Complex64{re: 0.8, im: 9.0}));
+        assert!(iterator.next().is_none());
     }
 }
