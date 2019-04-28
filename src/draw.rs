@@ -4,8 +4,8 @@ pub fn float_range(min: f64, max: f64, step: f64) -> impl std::iter::Iterator<It
     (((min / step) as i64)..=((max / step) as i64)).map(move |i| i as f64 * step)
 }
 
-pub fn draw() -> image::RgbImage {
-	image::RgbImage::new(10, 10)
+pub fn draw(color_function : &Fn(u32, u32) -> image::Rgb<u8>) -> image::RgbImage {
+	image::RgbImage::from_fn(256, 256, color_function)
 }
 
 #[cfg(test)]
@@ -26,9 +26,10 @@ mod tests {
     }
 
     #[test]
-    fn draw_creates_rbg_image() {
-    	let img : image::RgbImage = draw();
-    	let check_intensity = |img : image::RgbImage, x, y, intensity : u8| *img.get_pixel(x, y) == image::Rgb([intensity; 3]);
-    	assert!(check_intensity(img, 0, 0, 0));
+    fn draw_creates_rbg_image_from_color_function() {
+    	let color_function = |x : u32, y: u32| return image::Rgb([(x % 256) as u8, (y % 256) as u8, 0]);
+    	let img : image::RgbImage = draw(&color_function);
+    	assert!(*img.get_pixel(0, 0) == color_function(0, 0));
+    	assert!(*img.get_pixel(255, 255) == color_function(255, 255));
     }
 }
