@@ -22,7 +22,11 @@ pub fn mandelbrot_function(c: Complex64) -> Box<Fn(Complex64) -> Complex64> {
     Box::new(move |z| z * z + c)
 }
 
-pub fn measure_divergence<T: Bounded + num::Zero>(function: &Fn(T) -> T, bound: f64, max_iterations: i64) -> Option<i64> {
+pub fn measure_divergence<T: Bounded + num::Zero>(
+    function: &Fn(T) -> T,
+    bound: f64,
+    max_iterations: i64,
+) -> Option<i64> {
     let mut value: T = num::zero();
     let mut iterations = 0;
     loop {
@@ -43,10 +47,10 @@ mod tests {
 
     #[test]
     fn mandelbrot_function_evaluates_correctly_for_complex_numbers() {
-        let z = Complex64{re: 3.0, im: 2.0};
-        let c = Complex64{re: 0.5, im: 1.0};
+        let z = Complex64 { re: 3.0, im: 2.0 };
+        let c = Complex64 { re: 0.5, im: 1.0 };
 
-        assert_eq!(Complex64{re: 5.5, im: 13.}, mandelbrot_function(c)(z));
+        assert_eq!(Complex64 { re: 5.5, im: 13. }, mandelbrot_function(c)(z));
     }
 
     #[test]
@@ -71,7 +75,7 @@ mod tests {
 
     #[test]
     fn mandelbrot_function_does_not_diverge_for_some_constant() {
-        let c = Complex64{re: 0.1, im: 0.1};
+        let c = Complex64 { re: 0.1, im: 0.1 };
 
         let iterations = measure_divergence(&*mandelbrot_function(c), 1.0, 10);
 
@@ -80,7 +84,7 @@ mod tests {
 
     #[test]
     fn mandelbrot_function_diverges_for_some_constant() {
-        let c = Complex64{re: 0.5, im: 0.5};
+        let c = Complex64 { re: 0.5, im: 0.5 };
 
         let iterations = measure_divergence(&*mandelbrot_function(c), 1.0, 10);
 
